@@ -3,12 +3,12 @@ from torch.utils.data import Dataset
 
 try:
     from PySpice.Spice.Netlist import Circuit
-    from PySpice.Unit import u_Ohm, u_F, u_H
+    from PySpice.Unit import u_Ohm, u_F, u_H, u_V, u_A
     from PySpice.Logging.Logging import setup_logging
-    from PySpice.Probe.Plot import bode
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-except Exception:
+except Exception as e:
+    print(f"PySpice not available: {e}")
     Circuit = None  # Placeholder if PySpice isn't installed
 
 
