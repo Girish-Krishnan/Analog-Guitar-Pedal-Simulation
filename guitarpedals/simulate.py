@@ -26,6 +26,11 @@ def main():
     os.makedirs('outputs', exist_ok=True)
     audio, fs = generate_riff()
     audio = normalize(audio)
+    plt.figure(figsize=(10,4))
+    plt.plot(audio[:1000])
+    plt.title('Input Audio Waveform (first 1000 samples)')
+    plt.tight_layout()
+    plt.savefig('outputs/input_waveform.png')
 
     circuit = fuzz_circuit()
     y = simulate_circuit(circuit, audio, fs)
