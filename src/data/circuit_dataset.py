@@ -34,6 +34,11 @@ def simulate_frequency_response(filter_type, params, freqs):
         circuit.R(1, 'in', 'n1', R @ u_Ohm)
         circuit.L(1, 'n1', 'out', L @ u_H)
         circuit.C(1, 'out', circuit.gnd, C @ u_F)
+    elif filter_type == 'bandstop':
+        R, L, C = params['R'], params['L'], params['C']
+        circuit.R(1, 'in', 'out', R @ u_Ohm)
+        circuit.L(1, 'out', circuit.gnd, L @ u_H)
+        circuit.C(1, 'out', circuit.gnd, C @ u_F)
     else:
         raise ValueError(f"Unknown filter type {filter_type}")
 
@@ -58,7 +63,7 @@ class CircuitDataset(Dataset):
             self.samples.append(sample)
 
     def _generate_sample(self):
-        filter_type = np.random.choice(['lowpass', 'highpass', 'bandpass'])
+        filter_type = np.random.choice(['lowpass', 'highpass', 'bandpass', 'bandstop'])
         if filter_type == 'lowpass':
             R = np.random.uniform(1e3, 10e3)
             C = np.random.uniform(1e-9, 1e-6)
@@ -67,7 +72,12 @@ class CircuitDataset(Dataset):
             R = np.random.uniform(1e3, 10e3)
             C = np.random.uniform(1e-9, 1e-6)
             params = {'R': R, 'C': C, 'L': 0}
-        else:  # bandpass
+        elif filter_type == 'bandpass':
+            R = np.random.uniform(1e3, 10e3)
+            L = np.random.uniform(1e-6, 1e-3)
+            C = np.random.uniform(1e-9, 1e-6)
+            params = {'R': R, 'L': L, 'C': C}
+        else:  # bandstop
             R = np.random.uniform(1e3, 10e3)
             L = np.random.uniform(1e-6, 1e-3)
             C = np.random.uniform(1e-9, 1e-6)
@@ -79,7 +89,7 @@ class CircuitDataset(Dataset):
             response = np.zeros_like(self.freqs)
 
         # encode filter type as index
-        filter_idx = {'lowpass':0, 'highpass':1, 'bandpass':2}[filter_type]
+        filter_idx = {'lowpass':0, 'highpass':1, 'bandpass':2, 'bandstop':3}[filter_type]
         return {
             'filter_type': filter_idx,
             'response': response,
