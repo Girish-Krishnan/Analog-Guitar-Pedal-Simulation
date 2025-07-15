@@ -38,7 +38,9 @@ def simulate_frequency_response(filter_type, params, freqs):
         raise ValueError(f"Unknown filter type {filter_type}")
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.ac(start_frequency=freqs[0], stop_frequency=freqs[-1], number_of_points=len(freqs),  variation='dec')
+    # Use a linear sweep so the number of returned points matches ``len(freqs)``
+    analysis = simulator.ac(start_frequency=freqs[0], stop_frequency=freqs[-1],
+                             number_of_points=len(freqs), variation='lin')
     mag = np.absolute(np.array(analysis.out))
     return mag
 
