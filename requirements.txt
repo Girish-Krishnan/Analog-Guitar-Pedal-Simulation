@@ -1,7 +1,0 @@
-numpy
-scipy
-torch
-matplotlib
-schemdraw
-PySpice
-tqdm
