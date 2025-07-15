@@ -1,0 +1,6 @@
+PySpice>=1.5
+pretty_midi
+numpy
+scipy
+matplotlib
+soundfile
