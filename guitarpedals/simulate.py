@@ -9,7 +9,7 @@ import librosa
 
 from .generate import generate_riff
 from .dsp import normalize, low_pass
-from .circuits import fuzz_circuit, overdrive_circuit
+from .circuits import fuzz_circuit, overdrive_circuit, save_circuit_diagram
 
 setup_logging()
 
@@ -32,7 +32,9 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     print("Sampling rate:", fs)
     orig_fs = fs
     if target_fs and fs > target_fs:
-        input_wave = librosa.resample(np.asarray(input_wave), orig_sr=fs, target_sr=target_fs)
+        input_wave = librosa.resample(
+            np.asarray(input_wave), orig_sr=fs, target_sr=target_fs
+        )
         print("Resampled input wave length:", len(input_wave))
         fs = target_fs
 
@@ -45,7 +47,7 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     print("Creating PieceWiseLinearVoltageSource with", len(values), "points")
 
     circuit.PieceWiseLinearVoltageSource(
-        'input', 'in', circuit.gnd, values=values, dc=float(input_wave[0]) @ u_V
+        "input", "in", circuit.gnd, values=values, dc=float(input_wave[0]) @ u_V
     )
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -73,25 +75,28 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
 
 
 def main():
-    os.makedirs('outputs', exist_ok=True)
+    os.makedirs("outputs", exist_ok=True)
     audio, fs = generate_riff()
     audio = normalize(audio)
-    plt.figure(figsize=(10,4))
+    plt.figure(figsize=(10, 4))
     plt.plot(audio)
-    plt.title('Input Audio Waveform')
+    plt.title("Input Audio Waveform")
     plt.tight_layout()
-    plt.savefig('outputs/input_waveform.png')
+    plt.savefig("outputs/input_waveform.png")
 
     circuit = fuzz_circuit()
+    circuit_img = f"outputs/{circuit.title.lower()}_circuit.png"
+    save_circuit_diagram(circuit, circuit_img)
     y = simulate_circuit(circuit, audio, fs)
     y = normalize(low_pass(y, fs))
     sf.write('outputs/fuzz.wav', y, fs)
 
-    plt.figure(figsize=(10,4))
+    plt.figure(figsize=(10, 4))
     plt.plot(y)
-    plt.title('Fuzz Output')
+    plt.title("Fuzz Output")
     plt.tight_layout()
-    plt.savefig('outputs/fuzz_waveform.png')
+    plt.savefig("outputs/fuzz_waveform.png")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
