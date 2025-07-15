@@ -88,9 +88,8 @@ def main():
     circuit_img = f"outputs/{circuit.title.lower()}_circuit.png"
     save_circuit_diagram(circuit, circuit_img)
     y = simulate_circuit(circuit, audio, fs)
-    # y = normalize(low_pass(y, fs))
-    y = normalize(y)
-    sf.write("outputs/fuzz.wav", y, fs)
+    y = normalize(low_pass(y, fs))
+    sf.write('outputs/fuzz.wav', y, fs)
 
     plt.figure(figsize=(10, 4))
     plt.plot(y)
