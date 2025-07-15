@@ -1,6 +1,11 @@
 import numpy as np
 from PySpice.Logging.Logging import setup_logging
-import PySpice.Spice.Netlist as Netlist
+# Import the Circuit class directly.  Using the module alias and then
+# accessing ``Circuit`` via ``Netlist.Circuit`` caused an AttributeError
+# when running ``python -m guitarpedals.simulate``.  The PySpice package
+# exposes ``Circuit`` as a class within ``PySpice.Spice.Netlist`` so we
+# import it explicitly here.
+from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *
 from PySpice.Probe.Plot import plot
 
@@ -9,7 +14,7 @@ logger = setup_logging()
 
 def fuzz_circuit(dc_voltage=9@u_V):
     """Builds a simple fuzz pedal circuit using a transistor."""
-    circuit = Netlist.Circuit('Fuzz')
+    circuit = Circuit('Fuzz')
     circuit.V(1, 'in', circuit.gnd, 0@u_V)
     circuit.V(2, 'batt', circuit.gnd, dc_voltage)
     circuit.R(1, 'in', 'b', 33@u_kOhm)
@@ -23,7 +28,7 @@ def fuzz_circuit(dc_voltage=9@u_V):
 
 def overdrive_circuit(dc_voltage=9@u_V):
     """A simple diode clipping overdrive."""
-    circuit = Netlist.Circuit('Overdrive')
+    circuit = Circuit('Overdrive')
     circuit.V(1, 'in', circuit.gnd, 0@u_V)
     circuit.V(2, 'batt', circuit.gnd, dc_voltage)
     circuit.R(1, 'in', 'n1', 1@u_kOhm)
