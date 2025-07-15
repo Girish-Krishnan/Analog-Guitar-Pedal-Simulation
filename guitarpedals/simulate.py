@@ -54,10 +54,17 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     
     print("Simulation complete, output length:", len(out))
 
-    # Resample back to the original sampling rate if we changed it
+    # Resample back to the original sampling rate if it was changed during
+    # simulation.  Ngspice can also return a variable number of samples so we
+    # resample again to match the original input length.  ``signal.resample`` is
+    # used here because it operates purely on the sample count regardless of the
+    # current sampling rate.
     if fs != orig_fs:
         out = librosa.resample(out, orig_sr=fs, target_sr=orig_fs)
         fs = orig_fs
+
+    if len(out) != orig_len:
+        out = signal.resample(out, orig_len)
 
     print("Output length:", len(out))
     print("Output sampling rate:", fs)
