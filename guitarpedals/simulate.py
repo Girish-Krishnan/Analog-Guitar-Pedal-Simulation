@@ -9,7 +9,12 @@ import librosa
 
 from .generate import generate_riff
 from .dsp import normalize, low_pass
-from .circuits import fuzz_circuit, overdrive_circuit, save_circuit_diagram
+from .circuits import (
+    fuzz_circuit,
+    overdrive_circuit,
+    save_circuit_diagram,
+    save_circuit_schematic,
+)
 
 setup_logging()
 
@@ -85,8 +90,8 @@ def main():
     plt.savefig("outputs/input_waveform.png")
 
     circuit = fuzz_circuit()
-    circuit_img = f"outputs/{circuit.title.lower()}_circuit.png"
-    save_circuit_diagram(circuit, circuit_img)
+    circuit_img = f"outputs/{circuit.title.lower()}_schematic.png"
+    save_circuit_schematic(circuit, circuit_img)
     y = simulate_circuit(circuit, audio, fs)
     y = normalize(low_pass(y, fs))
     sf.write('outputs/fuzz.wav', y, fs)

@@ -32,7 +32,8 @@ This will:
 
 1. Generate a short guitar riff and save it to `outputs/riff.wav`.
 2. Simulate the fuzz pedal circuit and create `outputs/fuzz.wav`.
-3. Plot the first part of the resulting waveform to `outputs/fuzz_waveform.png`.
+3. Generate a schematic of the circuit at `outputs/fuzz_schematic.png`.
+4. Plot the first part of the resulting waveform to `outputs/fuzz_waveform.png`.
 
 You can modify the code in `guitarpedals/generate.py` to load your own MIDI file or adjust the riff generation parameters.
 
@@ -42,6 +43,7 @@ After running `python -m guitarpedals.simulate`, the `outputs` directory will co
 
 - `riff.wav` – the clean, generated guitar riff
 - `fuzz.wav` – the same riff processed by the fuzz pedal simulation
+- `fuzz_schematic.png` – schematic diagram of the fuzz circuit
 - `fuzz_waveform.png` – plot of the first few milliseconds of the processed audio
 
 Listen to the WAV files and open the plot image to observe how the analog circuit model affects the waveform.

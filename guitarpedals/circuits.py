@@ -10,6 +10,8 @@ from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *
 from PySpice.Probe.Plot import plot
 from graphviz import Graph
+import schemdraw
+import schemdraw.elements as elm
 
 logger = setup_logging()
 
@@ -76,3 +78,55 @@ def save_circuit_diagram(circuit, filename):
             graph.edge(start, end, label=label)
 
     graph.render(filename, cleanup=True)
+
+
+def save_circuit_schematic(circuit, filename):
+    """Generate a simple schematic using ``schemdraw``.
+
+    This routine draws a more traditional schematic for the small example
+    circuits in this repository.  It currently has explicit layouts for the
+    ``Fuzz`` and ``Overdrive`` circuits and falls back to
+    :func:`save_circuit_diagram` for any others.
+    """
+
+    title = circuit.title.lower()
+
+    if title == "fuzz":
+        with schemdraw.Drawing(file=filename) as d:
+            d.config(unit=2.0, fontsize=12)
+            src = d.add(elm.SourceSin(label="Vin"))
+            d.add(elm.Line().right())
+            d.add(elm.Resistor(label="33kΩ"))
+            d.add(elm.Dot())
+            bjt = d.add(elm.BjtNpn())
+            d.add(elm.Resistor(label="10kΩ").down().at(bjt.collector))
+            d.add(elm.Ground())
+            d.add(elm.Line().up().at(bjt.base))
+            d.add(elm.Resistor(label="100kΩ").to(bjt.collector))
+            d.add(elm.Capacitor(label="0.1µF").right().at(bjt.collector))
+            d.add(elm.Line().right())
+            d.add(elm.Resistor(label="100kΩ").down())
+            d.add(elm.Ground())
+        return
+
+    if title == "overdrive":
+        with schemdraw.Drawing(file=filename) as d:
+            d.config(unit=2.0, fontsize=12)
+            d.add(elm.SourceSin(label="Vin"))
+            d.add(elm.Line().right())
+            d.add(elm.Resistor(label="1kΩ"))
+            n1 = d.add(elm.Dot())
+            d.add(elm.Resistor(label="1kΩ").down())
+            d.add(elm.Ground())
+            d.push()
+            d.at(n1)
+            d.add(elm.Diode(label="D1").right())
+            out = d.add(elm.Dot())
+            d.add(elm.Diode(label="D2").right().at(out).reverse())
+            d.add(elm.Line().right())
+            d.add(elm.Resistor(label="100kΩ").down())
+            d.add(elm.Ground())
+        return
+
+    # Fallback to the simple graphviz representation
+    save_circuit_diagram(circuit, filename)

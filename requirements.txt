@@ -6,3 +6,4 @@ matplotlib
 soundfile
 librosa
 pyfluidsynth
+schemdraw
