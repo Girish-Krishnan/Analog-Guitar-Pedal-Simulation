@@ -1,0 +1,42 @@
+import numpy as np
+import soundfile as sf
+import matplotlib.pyplot as plt
+from PySpice.Unit import *
+from PySpice.Logging.Logging import setup_logging
+import os
+
+from .generate import generate_riff
+from .dsp import normalize, low_pass
+from .circuits import fuzz_circuit, overdrive_circuit
+
+setup_logging()
+
+
+def simulate_circuit(circuit, input_wave, fs):
+    """Run a transient simulation of the circuit with the given input_wave."""
+    step = 1/fs @ u_s
+    circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=1@u_V, frequency=fs/2)
+    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+    analysis = simulator.transient(step_time=step, end_time=len(input_wave)/fs @ u_s)
+    out = np.array(analysis.out)
+    return out
+
+
+def main():
+    os.makedirs('outputs', exist_ok=True)
+    audio, fs = generate_riff()
+    audio = normalize(audio)
+
+    circuit = fuzz_circuit()
+    y = simulate_circuit(circuit, audio, fs)
+    y = normalize(low_pass(y, fs))
+    sf.write('outputs/fuzz.wav', y, fs)
+
+    plt.figure(figsize=(10,4))
+    plt.plot(y[:1000])
+    plt.title('Fuzz Output (first 1000 samples)')
+    plt.tight_layout()
+    plt.savefig('outputs/fuzz_waveform.png')
+
+if __name__ == '__main__':
+    main()
