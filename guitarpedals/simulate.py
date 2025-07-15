@@ -51,7 +51,7 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.transient(step_time=step, end_time=len(input_wave) / fs @ u_s)
     out = np.array(analysis.out)
-    
+
     print("Simulation complete, output length:", len(out))
 
     # Resample back to the original sampling rate if it was changed during
@@ -84,8 +84,7 @@ def main():
 
     circuit = fuzz_circuit()
     y = simulate_circuit(circuit, audio, fs)
-    # y = normalize(low_pass(y, fs))
-    y = normalize(y)
+    y = normalize(low_pass(y, fs))
     sf.write('outputs/fuzz.wav', y, fs)
 
     plt.figure(figsize=(10,4))
