@@ -7,7 +7,7 @@ from src.models.vae import VAE
 from src.data.circuit_dataset import simulate_frequency_response
 
 
-FILTER_TYPES = ['lowpass', 'highpass', 'bandpass']
+FILTER_TYPES = ['lowpass', 'highpass', 'bandpass', 'bandstop']
 
 
 def load_model(model_path, input_dim, latent_dim):
@@ -50,8 +50,8 @@ def main(args):
 
     # For demo, generate a basic target response using nominal components
     target_params = {'R': args.R, 'L': args.L, 'C': args.C}
-    if args.filter_type == 'bandpass' and args.L == 0:
-        raise ValueError('Bandpass filter requires --L value')
+    if args.filter_type in ('bandpass', 'bandstop') and args.L == 0:
+        raise ValueError(f"{args.filter_type} filter requires --L value")
 
     target = simulate_frequency_response(args.filter_type, target_params, freqs)
     design = design_circuit(model, target, args.filter_type)
