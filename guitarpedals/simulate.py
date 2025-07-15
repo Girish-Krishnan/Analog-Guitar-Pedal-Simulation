@@ -13,11 +13,25 @@ setup_logging()
 
 
 def simulate_circuit(circuit, input_wave, fs):
-    """Run a transient simulation of the circuit with the given input_wave."""
-    step = 1/fs @ u_s
-    circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=1@u_V, frequency=fs/2)
+    """Run a transient simulation of ``circuit`` using ``input_wave``.
+
+    The previous implementation ignored ``input_wave`` and drove the circuit
+    with a sinusoidal voltage source.  We now feed the actual audio samples by
+    creating a piece-wise linear voltage source that follows the waveform.
+    """
+
+    step = 1 / fs @ u_s
+
+    # Create (time, value) pairs for the voltage source.
+    times = np.arange(len(input_wave)) / fs
+    values = [(t @ u_s, float(v) @ u_V) for t, v in zip(times, input_wave)]
+
+    circuit.PieceWiseLinearVoltageSource(
+        'input', 'in', circuit.gnd, values=values, dc=0 @ u_V
+    )
+
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=step, end_time=len(input_wave)/fs @ u_s)
+    analysis = simulator.transient(step_time=step, end_time=len(input_wave) / fs @ u_s)
     out = np.array(analysis.out)
     return out
 
