@@ -30,11 +30,7 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     orig_len = len(input_wave)
     orig_fs = fs
     if target_fs and fs > target_fs:
-        try:
-            input_wave = librosa.resample(np.asarray(input_wave), orig_sr=fs, target_sr=target_fs)
-        except Exception:
-            n_samples = int(len(input_wave) * target_fs / fs)
-            input_wave = signal.resample(input_wave, n_samples)
+        input_wave = librosa.resample(np.asarray(input_wave), orig_sr=fs, target_sr=target_fs)
         fs = target_fs
 
     step = 1 / fs @ u_s
@@ -44,7 +40,7 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     values = [(t @ u_s, float(v) @ u_V) for t, v in zip(times, input_wave)]
 
     circuit.PieceWiseLinearVoltageSource(
-        'input', 'in', circuit.gnd, values=values, dc=0 @ u_V
+        'input', 'in', circuit.gnd, values=values, dc=float(input_wave[0]) @ u_V
     )
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -53,10 +49,7 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
 
     # Resample back to the original sampling rate if we changed it
     if fs != orig_fs:
-        try:
-            out = librosa.resample(out, orig_sr=fs, target_sr=orig_fs)
-        except Exception:
-            out = signal.resample(out, orig_len)
+        out = librosa.resample(out, orig_sr=fs, target_sr=orig_fs)
         fs = orig_fs
 
     return out

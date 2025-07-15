@@ -18,7 +18,7 @@ This project demonstrates how to combine analog circuit simulation using **PySpi
 pip install -r requirements.txt
 ```
 
-PySpice depends on **ngspice**. On many systems it can be installed via package manager (e.g. `apt-get install ngspice`).
+PySpice depends on **ngspice**. On many systems it can be installed via a package manager (e.g. `apt-get install ngspice`). Rendering MIDI to audio requires the optional `pyfluidsynth` package and an installed FluidSynth library.
 
 ## Usage
 
