@@ -28,9 +28,12 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     """
 
     orig_len = len(input_wave)
+    print("Length of input wave:", orig_len)
+    print("Sampling rate:", fs)
     orig_fs = fs
     if target_fs and fs > target_fs:
         input_wave = librosa.resample(np.asarray(input_wave), orig_sr=fs, target_sr=target_fs)
+        print("Resampled input wave length:", len(input_wave))
         fs = target_fs
 
     step = 1 / fs @ u_s
@@ -39,6 +42,8 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     times = np.arange(len(input_wave)) / fs
     values = [(t @ u_s, float(v) @ u_V) for t, v in zip(times, input_wave)]
 
+    print("Creating PieceWiseLinearVoltageSource with", len(values), "points")
+
     circuit.PieceWiseLinearVoltageSource(
         'input', 'in', circuit.gnd, values=values, dc=float(input_wave[0]) @ u_V
     )
@@ -46,11 +51,16 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.transient(step_time=step, end_time=len(input_wave) / fs @ u_s)
     out = np.array(analysis.out)
+    
+    print("Simulation complete, output length:", len(out))
 
     # Resample back to the original sampling rate if we changed it
     if fs != orig_fs:
         out = librosa.resample(out, orig_sr=fs, target_sr=orig_fs)
         fs = orig_fs
+
+    print("Output length:", len(out))
+    print("Output sampling rate:", fs)
 
     return out
 
@@ -60,19 +70,20 @@ def main():
     audio, fs = generate_riff()
     audio = normalize(audio)
     plt.figure(figsize=(10,4))
-    plt.plot(audio[:1000])
-    plt.title('Input Audio Waveform (first 1000 samples)')
+    plt.plot(audio)
+    plt.title('Input Audio Waveform')
     plt.tight_layout()
     plt.savefig('outputs/input_waveform.png')
 
     circuit = fuzz_circuit()
     y = simulate_circuit(circuit, audio, fs)
-    y = normalize(low_pass(y, fs))
+    # y = normalize(low_pass(y, fs))
+    y = normalize(y)
     sf.write('outputs/fuzz.wav', y, fs)
 
     plt.figure(figsize=(10,4))
-    plt.plot(y[:1000])
-    plt.title('Fuzz Output (first 1000 samples)')
+    plt.plot(y)
+    plt.title('Fuzz Output')
     plt.tight_layout()
     plt.savefig('outputs/fuzz_waveform.png')
 
