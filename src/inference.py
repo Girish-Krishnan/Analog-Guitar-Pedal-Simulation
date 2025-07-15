@@ -3,16 +3,21 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.models.vae import VAE
+from src.models import VAE, AdvancedVAE
 from src.data.circuit_dataset import simulate_frequency_response
 
 
 FILTER_TYPES = ['lowpass', 'highpass', 'bandpass', 'bandstop']
 
 
-def load_model(model_path, input_dim, latent_dim):
-    model = VAE(input_dim=input_dim, latent_dim=latent_dim)
-    checkpoint = torch.load(model_path)
+def load_model(model_path, input_dim, latent_dim, model_type='vae'):
+    """Load a saved model checkpoint."""
+    if model_type == 'advanced':
+        model = AdvancedVAE(input_dim=input_dim, latent_dim=latent_dim)
+    else:
+        model = VAE(input_dim=input_dim, latent_dim=latent_dim)
+
+    checkpoint = torch.load(model_path, map_location='cpu')
     model.load_state_dict(checkpoint['model_state_dict'])
     freqs = checkpoint['freqs']
     return model, freqs
@@ -43,7 +48,9 @@ def plot_response(freqs, target, generated, filter_type):
 def main(args):
     dummy_freqs = np.logspace(1, 6, num=200)
     input_dim = len(dummy_freqs) + 1
-    model, freqs = load_model(args.model, input_dim, args.latent_dim)
+    model, freqs = load_model(
+        args.model, input_dim, args.latent_dim, args.model_type
+    )
 
     if args.filter_type not in FILTER_TYPES:
         raise ValueError(f"filter_type must be one of {FILTER_TYPES}")
@@ -64,6 +71,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate circuit from target frequency response')
     parser.add_argument('--model', type=str, default='model.pth')
+    parser.add_argument('--model-type', type=str, choices=['vae', 'advanced'], default='vae',
+                        help='choose model architecture')
     parser.add_argument('--filter-type', type=str, default='lowpass')
     parser.add_argument('--R', type=float, default=1e3)
     parser.add_argument('--L', type=float, default=1e-3)

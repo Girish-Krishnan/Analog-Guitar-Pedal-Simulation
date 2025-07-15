@@ -48,6 +48,12 @@ Use a trained model to design a circuit from a reference response:
 python -m src.inference --model model.pth --filter-type lowpass --R 1000 --C 1e-9
 ```
 
+If you trained the deeper architecture, pass `--model-type advanced` when running inference:
+
+```bash
+python -m src.inference --model advanced.pth --model-type advanced --filter-type lowpass --R 1000 --C 1e-9
+```
+
 Arguments `--R`, `--L`, `--C` specify nominal component values used to create the target frequency response. The script prints the generated component values and opens a plot comparing the target and generated Bode plots.
 
 For band‑pass and band‑stop filters you must also provide a value for `--L`.
