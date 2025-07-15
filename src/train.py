@@ -40,6 +40,15 @@ def train(args):
         model = AdvancedVAE(input_dim=input_dim, latent_dim=args.latent_dim)
     else:
         model = VAE(input_dim=input_dim, latent_dim=args.latent_dim)
+
+    device = (
+        torch.device("cuda") if torch.cuda.is_available() else
+        torch.device("mps") if torch.backends.mps.is_available() else
+        torch.device("cpu")
+    )
+    print(f"Using device: {device}")
+    model.to(device)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True)
@@ -55,6 +64,7 @@ def train(args):
             model.train()
             total_loss = 0.0
             for x, y in tqdm(train_loader, desc=f'Epoch {epoch+1}', leave=False):
+                x, y = x.to(device), y.to(device)
                 optimizer.zero_grad()
                 recon_y, mu, logvar = model(x)
                 loss, recon_loss, kld = model.loss_function(recon_y, y, mu, logvar)
@@ -69,6 +79,7 @@ def train(args):
             val_loss = 0.0
             with torch.no_grad():
                 for x, y in val_loader:
+                    x, y = x.to(device), y.to(device)
                     recon_y, mu, logvar = model(x)
                     loss, _, _ = model.loss_function(recon_y, y, mu, logvar)
                     val_loss += loss.item()
@@ -80,7 +91,8 @@ def train(args):
             if val_loss < best_val - 1e-6:
                 best_val = val_loss
                 epochs_no_improve = 0
-                torch.save({'model_state_dict': model.state_dict(), 'freqs': freqs}, args.output)
+                cpu_state = {k: v.cpu() for k, v in model.state_dict().items()}
+                torch.save({'model_state_dict': cpu_state, 'freqs': freqs}, args.output)
             else:
                 epochs_no_improve += 1
                 if epochs_no_improve >= args.patience:
