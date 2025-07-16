@@ -71,6 +71,58 @@ def two_stage_fuzz_circuit(dc_voltage=9 @ u_V):
     return circuit
 
 
+def three_stage_fuzz_circuit(dc_voltage=9 @ u_V):
+    """A fuzz circuit with three cascading transistor stages."""
+    circuit = Circuit("ThreeStageFuzz")
+    circuit.V(2, "batt", circuit.gnd, dc_voltage)
+
+    circuit.R(1, "in", "b1", 33 @ u_kOhm)
+    circuit.R(2, "b1", "c1", 100 @ u_kOhm)
+    circuit.R(3, "c1", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(1, "c1", "b1", circuit.gnd, model="npn")
+
+    circuit.R(4, "c1", "b2", 33 @ u_kOhm)
+    circuit.R(5, "b2", "c2", 100 @ u_kOhm)
+    circuit.R(6, "c2", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(2, "c2", "b2", circuit.gnd, model="npn")
+
+    circuit.R(7, "c2", "b3", 33 @ u_kOhm)
+    circuit.R(8, "b3", "c3", 100 @ u_kOhm)
+    circuit.R(9, "c3", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(3, "c3", "b3", circuit.gnd, model="npn")
+
+    circuit.C(1, "c3", "out", 0.1 @ u_uF)
+    circuit.R("load", "out", circuit.gnd, 100 @ u_kOhm)
+    circuit.model("npn", "NPN", bf=100)
+    return circuit
+
+
+def tone_stack_fuzz_circuit(dc_voltage=9 @ u_V):
+    """Two-stage fuzz followed by a simple tone stack."""
+    circuit = Circuit("ToneStackFuzz")
+    circuit.V(2, "batt", circuit.gnd, dc_voltage)
+
+    circuit.R(1, "in", "b1", 33 @ u_kOhm)
+    circuit.R(2, "b1", "c1", 100 @ u_kOhm)
+    circuit.R(3, "c1", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(1, "c1", "b1", circuit.gnd, model="npn")
+
+    circuit.R(4, "c1", "b2", 33 @ u_kOhm)
+    circuit.R(5, "b2", "c2", 100 @ u_kOhm)
+    circuit.R(6, "c2", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(2, "c2", "b2", circuit.gnd, model="npn")
+
+    circuit.C(1, "c2", "n1", 3.3 @ u_nF)
+    circuit.R(7, "n1", "n2", 39 @ u_kOhm)
+    circuit.C(2, "n2", "n3", 10 @ u_nF)
+    circuit.R(8, "n3", circuit.gnd, 39 @ u_kOhm)
+    circuit.R(9, "n3", "out", 100 @ u_kOhm)
+
+    circuit.R("load", "out", circuit.gnd, 100 @ u_kOhm)
+    circuit.model("npn", "NPN", bf=100)
+    return circuit
+
+
 def save_circuit_diagram(circuit, filename):
     """Save a very simple diagram of ``circuit`` using Graphviz.
 
