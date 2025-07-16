@@ -31,7 +31,7 @@ python -m guitarpedals.cli generate
 Then process the riff with one of the available circuits, for example:
 
 ```bash
-python -m guitarpedals.cli simulate --circuit twostagefuzz --oversample 2
+python -m guitarpedals.cli simulate --circuit two_stage_fuzz --oversample 2
 ```
 
 By default this writes the processed audio to `outputs/out.wav`, saves a schematic image and waveform plots and optionally applies convolution reverb with `--reverb-ir path/to/impulse.wav`. Use `--outdir DIR` to choose a different location for generated files.
