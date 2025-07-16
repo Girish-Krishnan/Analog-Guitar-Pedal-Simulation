@@ -6,7 +6,9 @@ This project demonstrates how to combine analog circuit simulation using **PySpi
 
 - Generation of simple guitar riffs with [PrettyMIDI](https://github.com/craffel/pretty-midi) and FluidSynth
 - PySpice transient simulation of example fuzz and overdrive circuits
-- Basic DSP filtering and normalization
+- Additional circuits like three-stage fuzz and tone-stack fuzz
+- Basic DSP filtering and normalization with high-pass, band-pass,
+  delay and chorus effects
 - Output WAV files and waveform plots for easy listening and inspection
 
 ## Installation

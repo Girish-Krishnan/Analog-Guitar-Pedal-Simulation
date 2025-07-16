@@ -19,6 +19,8 @@ from .circuits import (
     fuzz_circuit,
     overdrive_circuit,
     two_stage_fuzz_circuit,
+    three_stage_fuzz_circuit,
+    tone_stack_fuzz_circuit,
     save_circuit_schematic,
 )
 
@@ -26,6 +28,8 @@ CIRCUITS = {
     "fuzz": fuzz_circuit,
     "overdrive": overdrive_circuit,
     "two_stage_fuzz": two_stage_fuzz_circuit,
+    "three_stage_fuzz": three_stage_fuzz_circuit,
+    "tone_stack_fuzz": tone_stack_fuzz_circuit,
 }
 
 
