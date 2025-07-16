@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import signal
+import matplotlib.pyplot as plt
 
 
 def normalize(x):
@@ -33,3 +34,14 @@ def convolution_reverb(x, ir):
     """Apply convolution reverb using impulse response ``ir``."""
     y = signal.fftconvolve(x, ir, mode="full")
     return y[: len(x)]
+
+
+def save_waveform_plot(x, filename, title=None):
+    """Save a simple waveform plot of ``x`` to ``filename``."""
+    plt.figure(figsize=(10, 4))
+    plt.plot(x)
+    if title:
+        plt.title(title)
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()

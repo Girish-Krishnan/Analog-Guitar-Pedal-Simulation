@@ -34,7 +34,19 @@ Then process the riff with one of the available circuits, for example:
 python -m guitarpedals.cli simulate --circuit twostagefuzz --oversample 2
 ```
 
-By default this writes the processed audio to `outputs/out.wav`, saves a schematic image and optionally applies convolution reverb with `--reverb-ir path/to/impulse.wav`. Use `--outdir DIR` to choose a different location for generated files.
+By default this writes the processed audio to `outputs/out.wav`, saves a schematic image and waveform plots and optionally applies convolution reverb with `--reverb-ir path/to/impulse.wav`. Use `--outdir DIR` to choose a different location for generated files.
+
+### Command-line arguments
+
+| Argument | Applies To | Description |
+|----------|------------|-------------|
+| `--outdir DIR` | both | Output directory for generated files |
+| `generate --duration SECONDS` | `generate` | Length of generated riff |
+| `simulate --input PATH` | `simulate` | Input WAV file (defaults to `outdir/riff.wav`) |
+| `simulate --circuit {fuzz,overdrive,two_stage_fuzz}` | `simulate` | Circuit model to apply |
+| `simulate --output PATH` | `simulate` | Output WAV file name |
+| `simulate --reverb-ir PATH` | `simulate` | Impulse response WAV for convolution reverb |
+| `simulate --oversample N` | `simulate` | Oversampling factor before simulation |
 
 ## Expected Results
 
@@ -43,6 +55,8 @@ After running `python -m guitarpedals.cli simulate`, the chosen output directory
 - `riff.wav` – the clean, generated guitar riff
 - `out.wav` – the riff processed by the selected circuit
 - `<circuit>_schematic.png` – schematic diagram of the chosen circuit
+- `riff_waveform.png` – plot of the generated riff
+- `output_waveform.png` – plot of the circuit output
 
 Listen to the WAV files and open the plot image to observe how the analog circuit model affects the waveform.
 

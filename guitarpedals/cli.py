@@ -3,6 +3,15 @@ import os
 import soundfile as sf
 import librosa
 
+from .dsp import (
+    normalize,
+    low_pass,
+    oversample,
+    downsample,
+    convolution_reverb,
+    save_waveform_plot,
+)
+
 from .generate import generate_riff
 from .simulate import simulate_circuit
 from .dsp import normalize, low_pass, oversample, downsample, convolution_reverb
@@ -50,7 +59,8 @@ def main(argv=None):
 
     if args.command == "generate":
         filename = os.path.join(outdir, "riff.wav")
-        generate_riff(filename=filename, duration=args.duration)
+        audio, _ = generate_riff(filename=filename, duration=args.duration)
+        save_waveform_plot(audio, os.path.join(outdir, "riff_waveform.png"), "Generated Riff")
         return
 
     if args.command == "simulate":
@@ -58,6 +68,7 @@ def main(argv=None):
         if not os.path.exists(input_path):
             parser.error(f"Input file '{input_path}' not found")
         audio, fs = load_audio(input_path)
+        save_waveform_plot(audio, os.path.join(outdir, "input_waveform.png"), "Input Riff")
         circuit = CIRCUITS[args.circuit]()
         save_circuit_schematic(circuit, os.path.join(outdir, f"{circuit.title.lower()}_schematic.png"))
 
@@ -79,6 +90,7 @@ def main(argv=None):
         output_path = args.output or os.path.join(outdir, "out.wav")
         y = normalize(low_pass(y, fs))
         sf.write(output_path, y, fs)
+        save_waveform_plot(y, os.path.join(outdir, "output_waveform.png"), f"{circuit.title} Output")
         return
 
     parser.print_help()
