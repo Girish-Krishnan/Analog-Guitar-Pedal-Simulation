@@ -34,11 +34,11 @@ Then process the riff with one of the available circuits, for example:
 python -m guitarpedals.cli simulate --circuit twostagefuzz --oversample 2
 ```
 
-This writes the processed audio to `outputs/out.wav`, saves a schematic image and optionally applies convolution reverb with `--reverb-ir path/to/impulse.wav`.
+By default this writes the processed audio to `outputs/out.wav`, saves a schematic image and optionally applies convolution reverb with `--reverb-ir path/to/impulse.wav`. Use `--outdir DIR` to choose a different location for generated files.
 
 ## Expected Results
 
-After running `python -m guitarpedals.cli simulate`, the `outputs` directory will contain:
+After running `python -m guitarpedals.cli simulate`, the chosen output directory (default `outputs`) will contain:
 
 - `riff.wav` – the clean, generated guitar riff
 - `out.wav` – the riff processed by the selected circuit
@@ -56,7 +56,7 @@ src/
     dsp.py           # DSP helper functions
     generate.py      # Guitar riff generation
     cli.py           # Command line interface
-outputs/              # Created automatically for results
+outputs/              # Default directory for results
 ```
 
 Enjoy experimenting with analog-inspired guitar tones in the digital domain!

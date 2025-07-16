@@ -79,28 +79,28 @@ def simulate_circuit(circuit, input_wave, fs, target_fs=8000):
     return out
 
 
-def main():
-    os.makedirs("outputs", exist_ok=True)
-    audio, fs = generate_riff()
+def main(outdir="outputs"):
+    os.makedirs(outdir, exist_ok=True)
+    audio, fs = generate_riff(os.path.join(outdir, "riff.wav"))
     audio = normalize(audio)
     plt.figure(figsize=(10, 4))
     plt.plot(audio)
     plt.title("Input Audio Waveform")
     plt.tight_layout()
-    plt.savefig("outputs/input_waveform.png")
+    plt.savefig(os.path.join(outdir, "input_waveform.png"))
 
     circuit = fuzz_circuit()
-    circuit_img = f"outputs/{circuit.title.lower()}_schematic.png"
+    circuit_img = os.path.join(outdir, f"{circuit.title.lower()}_schematic.png")
     save_circuit_schematic(circuit, circuit_img)
     y = simulate_circuit(circuit, audio, fs)
     y = normalize(low_pass(y, fs))
-    sf.write('outputs/fuzz.wav', y, fs)
+    sf.write(os.path.join(outdir, 'fuzz.wav'), y, fs)
 
     plt.figure(figsize=(10, 4))
     plt.plot(y)
     plt.title("Fuzz Output")
     plt.tight_layout()
-    plt.savefig("outputs/fuzz_waveform.png")
+    plt.savefig(os.path.join(outdir, "fuzz_waveform.png"))
 
 
 if __name__ == "__main__":
