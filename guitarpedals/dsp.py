@@ -13,3 +13,23 @@ def normalize(x):
 def low_pass(x, sr, cutoff=5000):
     b, a = signal.butter(2, cutoff / (sr/2), btype='low')
     return signal.lfilter(b, a, x)
+
+
+def oversample(x, factor=2):
+    """Upsample ``x`` by ``factor`` using polyphase filtering."""
+    if factor <= 1:
+        return x
+    return signal.resample_poly(x, factor, 1)
+
+
+def downsample(x, factor=2):
+    """Downsample ``x`` by ``factor`` using polyphase filtering."""
+    if factor <= 1:
+        return x
+    return signal.resample_poly(x, 1, factor)
+
+
+def convolution_reverb(x, ir):
+    """Apply convolution reverb using impulse response ``ir``."""
+    y = signal.fftconvolve(x, ir, mode="full")
+    return y[: len(x)]

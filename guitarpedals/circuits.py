@@ -50,6 +50,27 @@ def overdrive_circuit(dc_voltage=9 @ u_V):
     return circuit
 
 
+def two_stage_fuzz_circuit(dc_voltage=9 @ u_V):
+    """A simple two-transistor fuzz similar to classic fuzz pedals."""
+    circuit = Circuit("TwoStageFuzz")
+    circuit.V(2, "batt", circuit.gnd, dc_voltage)
+
+    circuit.R(1, "in", "b1", 33 @ u_kOhm)
+    circuit.R(2, "b1", "c1", 100 @ u_kOhm)
+    circuit.R(3, "c1", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(1, "c1", "b1", circuit.gnd, model="npn")
+
+    circuit.R(4, "c1", "b2", 33 @ u_kOhm)
+    circuit.R(5, "b2", "c2", 100 @ u_kOhm)
+    circuit.R(6, "c2", circuit.gnd, 10 @ u_kOhm)
+    circuit.BJT(2, "c2", "b2", circuit.gnd, model="npn")
+
+    circuit.C(1, "c2", "out", 0.1 @ u_uF)
+    circuit.R("load", "out", circuit.gnd, 100 @ u_kOhm)
+    circuit.model("npn", "NPN", bf=100)
+    return circuit
+
+
 def save_circuit_diagram(circuit, filename):
     """Save a very simple diagram of ``circuit`` using Graphviz.
 
@@ -123,6 +144,32 @@ def save_circuit_schematic(circuit, filename):
             d.add(elm.Diode(label="D1").right())
             out = d.add(elm.Dot())
             d.add(elm.Diode(label="D2").right().at(out).reverse())
+            d.add(elm.Line().right())
+            d.add(elm.Resistor(label="100kΩ").down())
+            d.add(elm.Ground())
+        return
+
+    if title == "twostagefuzz":
+        with schemdraw.Drawing(file=filename) as d:
+            d.config(unit=2.0, fontsize=12)
+            d.add(elm.SourceSin(label="Vin"))
+            d.add(elm.Line().right())
+            d.add(elm.Resistor(label="33kΩ"))
+            d.add(elm.Dot())
+            q1 = d.add(elm.BjtNpn())
+            d.add(elm.Resistor(label="10kΩ").down().at(q1.collector))
+            d.add(elm.Ground())
+            d.add(elm.Line().up().at(q1.base))
+            d.add(elm.Resistor(label="100kΩ").to(q1.collector))
+            d.add(elm.Line().up().right())
+            d.add(elm.Resistor(label="33kΩ"))
+            d.add(elm.Dot())
+            q2 = d.add(elm.BjtNpn())
+            d.add(elm.Resistor(label="10kΩ").down().at(q2.collector))
+            d.add(elm.Ground())
+            d.add(elm.Line().up().at(q2.base))
+            d.add(elm.Resistor(label="100kΩ").to(q2.collector))
+            d.add(elm.Capacitor(label="0.1µF").right().at(q2.collector))
             d.add(elm.Line().right())
             d.add(elm.Resistor(label="100kΩ").down())
             d.add(elm.Ground())

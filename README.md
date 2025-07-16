@@ -22,29 +22,27 @@ PySpice depends on **ngspice**. On many systems it can be installed via a packag
 
 ## Usage
 
-Run the main simulation script:
+Use the provided command line interface to generate a test riff:
 
 ```bash
-python -m guitarpedals.simulate
+python -m guitarpedals.cli generate
 ```
 
-This will:
+Then process the riff with one of the available circuits, for example:
 
-1. Generate a short guitar riff and save it to `outputs/riff.wav`.
-2. Simulate the fuzz pedal circuit and create `outputs/fuzz.wav`.
-3. Generate a schematic of the circuit at `outputs/fuzz_schematic.png`.
-4. Plot the first part of the resulting waveform to `outputs/fuzz_waveform.png`.
+```bash
+python -m guitarpedals.cli simulate --circuit twostagefuzz --oversample 2
+```
 
-You can modify the code in `guitarpedals/generate.py` to load your own MIDI file or adjust the riff generation parameters.
+This writes the processed audio to `outputs/out.wav`, saves a schematic image and optionally applies convolution reverb with `--reverb-ir path/to/impulse.wav`.
 
 ## Expected Results
 
-After running `python -m guitarpedals.simulate`, the `outputs` directory will contain:
+After running `python -m guitarpedals.cli simulate`, the `outputs` directory will contain:
 
 - `riff.wav` – the clean, generated guitar riff
-- `fuzz.wav` – the same riff processed by the fuzz pedal simulation
-- `fuzz_schematic.png` – schematic diagram of the fuzz circuit
-- `fuzz_waveform.png` – plot of the first few milliseconds of the processed audio
+- `out.wav` – the riff processed by the selected circuit
+- `<circuit>_schematic.png` – schematic diagram of the chosen circuit
 
 Listen to the WAV files and open the plot image to observe how the analog circuit model affects the waveform.
 
@@ -57,7 +55,7 @@ src/
     circuits.py      # PySpice circuit definitions
     dsp.py           # DSP helper functions
     generate.py      # Guitar riff generation
-    simulate.py      # Main script to run simulation
+    cli.py           # Command line interface
 outputs/              # Created automatically for results
 ```
 
