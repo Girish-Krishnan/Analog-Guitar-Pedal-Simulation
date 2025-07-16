@@ -45,9 +45,16 @@ def main(argv=None):
 
     gen = sub.add_parser("generate", help="Generate a test riff")
     gen.add_argument("--duration", type=float, default=4.0, help="Length of riff in seconds")
+    gen.add_argument("--midi-file", help="Render this MIDI file instead of the default riff")
+    gen.add_argument("--random-melody", action="store_true", help="Generate a random melody")
+    gen.add_argument("--random-chords", action="store_true", help="Generate random chords")
 
     sim = sub.add_parser("simulate", help="Simulate a circuit on an audio file")
     sim.add_argument("--input", help="Input WAV file")
+    sim.add_argument("--midi", help="MIDI file to render and use as input")
+    sim.add_argument("--duration", type=float, default=4.0, help="Length of generated riff if no input file")
+    sim.add_argument("--random-melody", action="store_true", help="Generate a random melody")
+    sim.add_argument("--random-chords", action="store_true", help="Generate random chords")
     sim.add_argument("--circuit", choices=list(CIRCUITS), default="fuzz", help="Circuit to simulate")
     sim.add_argument("--output", help="Output WAV file")
     sim.add_argument("--reverb-ir", help="Impulse response WAV for convolution reverb")
@@ -59,15 +66,32 @@ def main(argv=None):
 
     if args.command == "generate":
         filename = os.path.join(outdir, "riff.wav")
-        audio, _ = generate_riff(filename=filename, duration=args.duration)
+        audio, _ = generate_riff(
+            filename=filename,
+            midi_file=args.midi_file,
+            duration=args.duration,
+            random_melody=args.random_melody,
+            random_chords=args.random_chords,
+        )
         save_waveform_plot(audio, os.path.join(outdir, "riff_waveform.png"), "Generated Riff")
         return
 
     if args.command == "simulate":
-        input_path = args.input or os.path.join(outdir, "riff.wav")
-        if not os.path.exists(input_path):
-            parser.error(f"Input file '{input_path}' not found")
-        audio, fs = load_audio(input_path)
+        if args.midi or args.random_melody or args.random_chords or not args.input:
+            input_path = args.input or os.path.join(outdir, "riff.wav")
+            audio, fs = generate_riff(
+                filename=input_path,
+                midi_file=args.midi,
+                duration=args.duration,
+                random_melody=args.random_melody,
+                random_chords=args.random_chords,
+            )
+        else:
+            input_path = args.input
+            if not os.path.exists(input_path):
+                parser.error(f"Input file '{input_path}' not found")
+            audio, fs = load_audio(input_path)
+
         save_waveform_plot(audio, os.path.join(outdir, "input_waveform.png"), "Input Riff")
         circuit = CIRCUITS[args.circuit]()
         save_circuit_schematic(circuit, os.path.join(outdir, f"{circuit.title.lower()}_schematic.png"))
