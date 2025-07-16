@@ -22,11 +22,14 @@ PySpice depends on **ngspice**. On many systems it can be installed via a packag
 
 ## Usage
 
-Use the provided command line interface to generate a test riff:
+Use the provided command line interface to generate a test riff or render your
+own MIDI file:
 
 ```bash
-python -m guitarpedals.cli generate
+python -m guitarpedals.cli generate --midi-file my_riff.mid
 ```
+You can also pass `--random-melody` or `--random-chords` to create a simple
+random riff on the fly.
 
 Then process the riff with one of the available circuits, for example:
 
@@ -42,7 +45,14 @@ By default this writes the processed audio to `outputs/out.wav`, saves a schemat
 |----------|------------|-------------|
 | `--outdir DIR` | both | Output directory for generated files |
 | `generate --duration SECONDS` | `generate` | Length of generated riff |
+| `generate --midi-file PATH` | `generate` | Render this MIDI file instead of a built-in riff |
+| `generate --random-melody` | `generate` | Generate a random melody |
+| `generate --random-chords` | `generate` | Generate random chords |
 | `simulate --input PATH` | `simulate` | Input WAV file (defaults to `outdir/riff.wav`) |
+| `simulate --midi PATH` | `simulate` | MIDI file to render and process |
+| `simulate --duration SECONDS` | `simulate` | Length when generating riff if no input WAV |
+| `simulate --random-melody` | `simulate` | Generate a random melody |
+| `simulate --random-chords` | `simulate` | Generate random chords |
 | `simulate --circuit {fuzz,overdrive,two_stage_fuzz}` | `simulate` | Circuit model to apply |
 | `simulate --output PATH` | `simulate` | Output WAV file name |
 | `simulate --reverb-ir PATH` | `simulate` | Impulse response WAV for convolution reverb |
