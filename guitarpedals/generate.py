@@ -3,7 +3,7 @@ import numpy as np
 import soundfile as sf
 
 
-def generate_riff(filename='outputs/riff.wav', midi_file=None, instrument_name='Electric Guitar (jazz)', duration=4.0, fs=44100):
+def generate_riff(filename='riff.wav', midi_file=None, instrument_name='Electric Guitar (jazz)', duration=4.0, fs=44100):
     """Generate a simple guitar riff and render to wav using FluidSynth."""
     if midi_file:
         pm = pretty_midi.PrettyMIDI(midi_file)

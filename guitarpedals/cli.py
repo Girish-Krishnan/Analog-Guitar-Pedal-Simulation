@@ -27,31 +27,39 @@ def load_audio(path):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Guitar pedal simulations")
+    parser.add_argument(
+        "--outdir",
+        default="outputs",
+        help="Directory to place generated files",
+    )
     sub = parser.add_subparsers(dest="command")
 
     gen = sub.add_parser("generate", help="Generate a test riff")
     gen.add_argument("--duration", type=float, default=4.0, help="Length of riff in seconds")
 
     sim = sub.add_parser("simulate", help="Simulate a circuit on an audio file")
-    sim.add_argument("--input", default="outputs/riff.wav", help="Input WAV file")
+    sim.add_argument("--input", help="Input WAV file")
     sim.add_argument("--circuit", choices=list(CIRCUITS), default="fuzz", help="Circuit to simulate")
-    sim.add_argument("--output", default="outputs/out.wav", help="Output WAV file")
+    sim.add_argument("--output", help="Output WAV file")
     sim.add_argument("--reverb-ir", help="Impulse response WAV for convolution reverb")
     sim.add_argument("--oversample", type=int, default=1, help="Oversampling factor")
 
     args = parser.parse_args(argv)
+    outdir = args.outdir
+    os.makedirs(outdir, exist_ok=True)
 
     if args.command == "generate":
-        os.makedirs("outputs", exist_ok=True)
-        generate_riff(duration=args.duration)
+        filename = os.path.join(outdir, "riff.wav")
+        generate_riff(filename=filename, duration=args.duration)
         return
 
     if args.command == "simulate":
-        if not os.path.exists(args.input):
-            parser.error(f"Input file '{args.input}' not found")
-        audio, fs = load_audio(args.input)
+        input_path = args.input or os.path.join(outdir, "riff.wav")
+        if not os.path.exists(input_path):
+            parser.error(f"Input file '{input_path}' not found")
+        audio, fs = load_audio(input_path)
         circuit = CIRCUITS[args.circuit]()
-        save_circuit_schematic(circuit, f"outputs/{circuit.title.lower()}_schematic.png")
+        save_circuit_schematic(circuit, os.path.join(outdir, f"{circuit.title.lower()}_schematic.png"))
 
         if args.oversample > 1:
             audio = oversample(audio, args.oversample)
@@ -68,8 +76,9 @@ def main(argv=None):
                 ir = librosa.resample(ir, orig_sr=ir_fs, target_sr=fs)
             y = convolution_reverb(y, ir)
 
+        output_path = args.output or os.path.join(outdir, "out.wav")
         y = normalize(low_pass(y, fs))
-        sf.write(args.output, y, fs)
+        sf.write(output_path, y, fs)
         return
 
     parser.print_help()
